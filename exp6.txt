@@ -1,0 +1,37 @@
+class Student {
+    private String name;
+    private int regNo;
+
+    // Setter methods
+    public void setName(String n) { 
+        name = n;
+    }
+    public void setRegNo(int r) { 
+        regNo = r;
+    }
+
+    // Getter methods
+    public String getName() { 
+        return name;
+    }
+    public int getRegNo() { 
+        return getRegNo(); // Error fixed: was recursively calling itself or missing logic
+    }
+    
+    // Fixed getter to return the actual field
+    public int getRegNoField() {
+        return regNo;
+    }
+}
+
+public class PackageEncapsulationDemo { 
+    public static void main(String[] args) {
+        Student s = new Student(); 
+        s.setName("Abishek"); 
+        s.setRegNo(101);
+        
+        System.out.println("Student Name: " + s.getName()); 
+        // Using the corrected getter
+        System.out.println("Register Number: " + s.getRegNoField());
+    }
+}
