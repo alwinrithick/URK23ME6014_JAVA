@@ -1,0 +1,37 @@
+package exp_8_URK23ME6016;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class CollectionDemo {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // In Java 21, ArrayList now implements the SequencedCollection interface
+        List<String> students = new ArrayList<>();
+
+        System.out.print("Enter number of students: ");
+        int n = sc.nextInt();
+        sc.nextLine();
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter student name: ");
+            String name = sc.nextLine();
+            students.add(name);
+        }
+
+        // New Java 21 methods for easy access
+        if (!students.isEmpty()) {
+            System.out.println("\nFirst Student: " + students.getFirst());
+            System.out.println("Last Student: " + students.getLast());
+        }
+
+        // Reversing the list is now a built-in view
+        System.out.println("\nStudent List (Reversed):");
+        for (String s : students.reversed()) {
+            System.out.println("- " + s);
+        }
+
+        sc.close();
+    }
+}
