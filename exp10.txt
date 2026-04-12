@@ -1,0 +1,45 @@
+package jdbc;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class JDBCDemo {
+    public static void main(String[] args) {
+
+        String url = "jdbc:mysql://localhost:3306/studentdb";
+        String user = "root";
+        String password = "root123";
+
+        // Try-with-resources automatically closes Connection and Statement
+        try (Connection con = DriverManager.getConnection(url, user, password);
+             Statement stmt = con.createStatement()) {
+
+            // 1. Create Table
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS student (id INT PRIMARY KEY, name VARCHAR(50))");
+
+            // 2. Insert Data
+            try {
+                stmt.executeUpdate("INSERT INTO student VALUES (1010, 'Sang')");
+                System.out.println("Data inserted successfully.\n");
+            } catch (SQLException e) {
+                // Catches Primary Key violations if the ID 1010 already exists
+                System.out.println("Note: Record already exists or insertion failed.\n");
+            }
+
+            // 3. Query Data (ResultSet also placed in try-with-resources)
+            try (ResultSet rs = stmt.executeQuery("SELECT * FROM student")) {
+                System.out.println("Student Records:");
+                while (rs.next()) {
+                    System.out.println("ID: " + rs.getInt("id") + ", Name: " + rs.getString("name"));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Database Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
