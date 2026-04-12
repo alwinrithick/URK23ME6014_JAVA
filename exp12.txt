@@ -1,0 +1,144 @@
+package jdbcapp;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+public class StudentForm extends JFrame implements ActionListener {
+
+    JLabel titleLabel, idLabel, nameLabel;
+    JTextField idField, nameField;
+    JButton insertButton;
+
+    Connection con;
+
+    StudentForm() {
+        setTitle("Student Database");
+        setSize(450, 320);
+        setLayout(null);
+        getContentPane().setBackground(new Color(30, 30, 30));
+
+        titleLabel = new JLabel("Student Entry Form");
+        titleLabel.setBounds(110, 20, 300, 40);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE);
+        add(titleLabel);
+
+        idLabel = new JLabel("Student ID:");
+        idLabel.setBounds(60, 90, 120, 30);
+        idLabel.setForeground(Color.WHITE);
+        add(idLabel);
+
+        idField = new JTextField();
+        idField.setBounds(180, 90, 180, 30);
+        add(idField);
+
+        nameLabel = new JLabel("Student Name:");
+        nameLabel.setBounds(60, 140, 120, 30);
+        nameLabel.setForeground(Color.WHITE);
+        add(nameLabel);
+
+        nameField = new JTextField();
+        nameField.setBounds(180, 140, 180, 30);
+        add(nameField);
+
+        insertButton = new JButton("Insert Record");
+        insertButton.setBounds(140, 200, 150, 40);
+        insertButton.setBackground(new Color(0, 120, 215));
+        insertButton.setForeground(Color.WHITE);
+        insertButton.setFont(new Font("Arial", Font.BOLD, 14));
+        insertButton.setFocusPainted(false);
+        insertButton.addActionListener(this);
+        add(insertButton);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setVisible(true);
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/studentdb",
+                "root",
+                "root123"
+            );
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Database connection failed: " + e.getMessage(),
+                "Connection Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    if (con != null && !con.isClosed()) {
+                        con.close();
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String idText = idField.getText().trim();
+        String name = nameField.getText().trim();
+
+        if (idText.isEmpty() || name.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Please enter both Student ID and Student Name.",
+                "Input Error",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(idText);
+
+            String query = "INSERT INTO student (id, name) VALUES (?, ?)";
+
+            try (PreparedStatement ps = con.prepareStatement(query)) {
+                ps.setInt(1, id);
+                ps.setString(2, name);
+                ps.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Record Inserted Successfully",
+                "Success",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+
+            idField.setText("");
+            nameField.setText("");
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Student ID must be a number.",
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Error inserting data: " + ex.getMessage(),
+                "Database Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new StudentForm());
+    }
+}
